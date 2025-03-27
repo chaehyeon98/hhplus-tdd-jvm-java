@@ -18,14 +18,14 @@ class PointServiceImplTest {
     * error 생성불가
     * */
     @Test
-    void serchPoint_id0() throws IllegalAccessError {
+    void serchPoint_id0() {
 
         //when 동작 검증
         //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
-        Mockito.when(pointService.serchPoint(0L)).thenThrow(new IllegalAccessError("생성불가"));
+        Mockito.when(pointService.serchPoint(0L)).thenThrow(new IllegalArgumentException("생성불가"));
 
         //then 결과검증
-        IllegalAccessError exception = Assertions.assertThrows(IllegalAccessError.class, () -> pointService.serchPoint(0L));
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> pointService.serchPoint(0L));
 
         Assertions.assertEquals("생성불가", exception.getMessage());
 
@@ -36,14 +36,14 @@ class PointServiceImplTest {
      * error 생성불가
      * */
     @Test
-    void serchPoint_id101() throws IllegalAccessError {
+    void serchPoint_id101() {
 
         //when 동작 검증
         //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
-        Mockito.when(pointService.serchPoint(101L)).thenThrow(new IllegalAccessError("생성불가"));
+        Mockito.when(pointService.serchPoint(101L)).thenThrow(new IllegalArgumentException("생성불가"));
 
         //then 결과검증
-        IllegalAccessError exception = Assertions.assertThrows(IllegalAccessError.class, () -> pointService.serchPoint(101L));
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> pointService.serchPoint(101L));
 
         Assertions.assertEquals("생성불가", exception.getMessage());
     }
