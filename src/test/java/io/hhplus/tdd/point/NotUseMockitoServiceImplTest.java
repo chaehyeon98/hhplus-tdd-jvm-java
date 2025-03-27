@@ -120,16 +120,72 @@ class NotUseMockitoServiceImplTest {
     @Test
     void subPoint_amount0() {
 
+        List<PointHistory> table = new ArrayList<>();
+
+        Map<Long, UserPoint> userPoints = new HashMap<>();
+        UserPoint userPoint = new UserPoint(1L, 100L, System.currentTimeMillis());
+        userPoints.put(1L, userPoint);
+
+        PointService pointService = new PointServiceImpl(new PointHistoryTable(table, 1), new UserPointTable(userPoints));
+
+        Exception e = null;
+
+        try{
+            pointService.subPoint(userPoint, 0L);
+        }catch (Exception exception) {
+            e= exception;
+        }
+
+        assert e!= null;
+        assert e.getMessage().equals("사용불가");
+        assert e instanceof IllegalArgumentException;
     }
 
     /*
-     * 포인트사용 amount 100일 경우
+     * 포인트사용 point 99, amount 100일 경우
      * error 잔액부족
      * */
     @Test
     void subPoint_amount100() {
+        List<PointHistory> table = new ArrayList<>();
+
+        Map<Long, UserPoint> userPoints = new HashMap<>();
+        UserPoint userPoint = new UserPoint(1L, 99L, System.currentTimeMillis());
+        userPoints.put(1L, userPoint);
+
+        PointService pointService = new PointServiceImpl(new PointHistoryTable(table, 1), new UserPointTable(userPoints));
+
+        Exception e = null;
+
+        try{
+            pointService.subPoint(userPoint, 100L);
+        }catch (Exception exception) {
+            e= exception;
+        }
+
+        assert e!= null;
+        assert e.getMessage().equals("잔액부족");
+        assert e instanceof IllegalArgumentException;
 
     }
 
+    /*
+     * 포인트사용 point 100, amount 100일 경우
+     * UserPoint 0L반환
+     * */
+    @Test
+    void subPoint_amountMAX_True() {
+        List<PointHistory> table = new ArrayList<>();
 
+        Map<Long, UserPoint> userPoints = new HashMap<>();
+        UserPoint userPoint = new UserPoint(1L, 100L, 0);
+        userPoints.put(1L, userPoint);
+
+        PointService pointService = new PointServiceImpl(new PointHistoryTable(table, 1), new UserPointTable(userPoints));
+
+        UserPoint user = pointService.subPoint(userPoint, 100L);
+
+        assert user.id() == 1L;
+        assert user.point() == 0L;
+    }
 }

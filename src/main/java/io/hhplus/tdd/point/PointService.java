@@ -6,5 +6,7 @@ public interface PointService {
 
     UserPoint addPoint(UserPoint userPoint, long amount) throws IllegalArgumentException;
 
+    UserPoint subPoint(UserPoint userPoint, long amount) throws IllegalArgumentException;
+
     void insertHistory(long userId, long amount, TransactionType type) throws IllegalArgumentException;
 }

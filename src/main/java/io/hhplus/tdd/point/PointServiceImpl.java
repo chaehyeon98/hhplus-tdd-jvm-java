@@ -41,9 +41,22 @@ public class PointServiceImpl implements PointService {
             throw new IllegalArgumentException("1000포인트이상 충전불가");
         }
 
-        pointHistoryTable.insert(userPoint.id(), amount, TransactionType.CHARGE, System.currentTimeMillis());
-
         return userPointTable.insertOrUpdate(userPoint.id(), sum);
+    }
+
+    @Override
+    public UserPoint subPoint(UserPoint userPoint, long amount) throws IllegalArgumentException {
+
+        if(amount <= 0) {
+            throw new IllegalArgumentException("사용불가");
+        }
+
+        long sub = userPoint.point() - amount;
+        if(sub < 0){
+            throw new IllegalArgumentException("잔액부족");
+        }
+
+        return userPointTable.insertOrUpdate(userPoint.id(), sub);
     }
 
     @Override

@@ -28,7 +28,7 @@ class PointControllerTest {
     void point_id0() {
 
         //when 동작 검증
-        //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
+        //가상의객체 PointService에서 동작했을시(point) 생성되어야되는 결과
         Mockito.when(pointController.point(0L)).thenThrow(new IllegalArgumentException("생성불가"));
 
         //then 결과검증
@@ -46,7 +46,7 @@ class PointControllerTest {
     void point_id101() {
 
         //when 동작 검증
-        //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
+        //가상의객체 PointService에서 동작했을시(point) 생성되어야되는 결과
         Mockito.when(pointController.point(101L)).thenThrow(new IllegalArgumentException("생성불가"));
 
         //then 결과검증
@@ -67,7 +67,7 @@ class PointControllerTest {
         UserPoint mokUserPoint =  UserPoint.empty(1L);
 
         //when 동작 검증
-        //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
+        //가상의객체 PointService에서 동작했을시(point) 생성되어야되는 결과
         Mockito.when(pointController.point(1L)).thenReturn(mokUserPoint);
 
         //then
@@ -87,7 +87,7 @@ class PointControllerTest {
     @Test
     void addPoint_amount0() {
         //when 동작 검증
-        //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
+        //가상의객체 PointService에서 동작했을시(charge) 생성되어야되는 결과
         Mockito.when(pointController.charge(1L, 0L)).thenThrow(new IllegalArgumentException("충전불가"));
 
         //then 결과검증
@@ -103,7 +103,7 @@ class PointControllerTest {
     @Test
     void addPoint_amount101() {
         //when 동작 검증
-        //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
+        //가상의객체 PointService에서 동작했을시(charge) 생성되어야되는 결과
         Mockito.when(pointController.charge(1L, 101L)).thenThrow(new IllegalArgumentException("충전불가"));
 
         //then 결과검증
@@ -131,7 +131,7 @@ class PointControllerTest {
         ));
 
         //when 동작 검증
-        //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
+        //가상의객체 PointService에서 동작했을시(charge) 생성되어야되는 결과
         Mockito.doThrow(new IllegalArgumentException("1000포인트이상 충전불가"))
                 .when(pointController).charge(1L, 2L);
 
@@ -161,7 +161,7 @@ class PointControllerTest {
         UserPoint mokUserPoint = new UserPoint(1L, 1000L, System.currentTimeMillis());
 
         //when 동작 검증
-        //가상의객체 PointService에서 동작했을시(searchPoint) 생성되어야되는 결과
+        //가상의객체 PointService에서 동작했을시(charge) 생성되어야되는 결과
         Mockito.when(pointController.charge(1L, 1L)).thenReturn(mokUserPoint);
 
         //then
@@ -174,4 +174,86 @@ class PointControllerTest {
         InOrder inOrder = Mockito.inOrder(pointController);
         inOrder.verify(pointController).charge(1L, 1L);
     }
+
+    /*
+     * 포인트사용 amount 0일 경우
+     * error 사용불가
+     * */
+    @Test
+    void subPoint_amount0() {
+
+        //when 동작 검증
+        //가상의객체 PointService에서 동작했을시(use) 생성되어야되는 결과
+        Mockito.when(pointController.use(1L, 0L)).thenThrow(new IllegalArgumentException("사용불가"));
+
+        //then 결과검증
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> pointController.use(1L, 0L));
+
+        Assertions.assertEquals("사용불가", exception.getMessage());
+    }
+
+    /*
+     * 포인트사용 point 99, amount 100일 경우
+     * error 잔액부족
+     * */
+    @Test
+    void subPoint_amount100() {
+
+        //given
+        List<PointHistory> table = new ArrayList<>();
+
+        Map<Long, UserPoint> userPoints = new HashMap<>();
+        UserPoint userPoint = new UserPoint(1L, 99L, System.currentTimeMillis());
+        userPoints.put(1L, userPoint);
+
+        pointController = Mockito.spy(new PointController(
+                new PointServiceImpl(new PointHistoryTable(table, 1), new UserPointTable(userPoints))
+        ));
+
+        //when 동작 검증
+        //가상의객체 PointService에서 동작했을시(use) 생성되어야되는 결과
+        Mockito.doThrow(new IllegalArgumentException("잔액부족"))
+                .when(pointController).use(1L, 100L);
+
+        //then 결과검증
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> pointController.use(1L, 100L));
+
+        Assertions.assertEquals("잔액부족", exception.getMessage());
+
+    }
+
+    /*
+     * 포인트사용 point 100, amount 100일 경우
+     * UserPoint 0L반환
+     * */
+    @Test
+    void subPoint_amountMAX_True() {
+        //given
+        List<PointHistory> table = new ArrayList<>();
+
+        Map<Long, UserPoint> userPoints = new HashMap<>();
+        UserPoint userPoint = new UserPoint(1L, 100L, System.currentTimeMillis());
+        userPoints.put(1L, userPoint);
+
+        pointController = Mockito.spy(new PointController(
+                new PointServiceImpl(new PointHistoryTable(table, 1), new UserPointTable(userPoints))
+        ));
+
+        UserPoint mokUserPoint = new UserPoint(1L, 100L, System.currentTimeMillis());
+
+        //when 동작 검증
+        //가상의객체 PointService에서 동작했을시(use) 생성되어야되는 결과
+        Mockito.when(pointController.use(1L, 100L)).thenReturn(mokUserPoint);
+
+        //then
+        //id 1로 데이터가 생성되었는지
+        UserPoint userPoint2 = pointController.use(1L, 100L);
+        Assertions.assertEquals(mokUserPoint.id(), userPoint2.id());
+        Assertions.assertEquals(mokUserPoint.point(), userPoint2.point());
+
+        //point가 호출된것이 맞는지 검증
+        InOrder inOrder = Mockito.inOrder(pointController);
+        inOrder.verify(pointController).use(1L, 100L);
+    }
+
 }

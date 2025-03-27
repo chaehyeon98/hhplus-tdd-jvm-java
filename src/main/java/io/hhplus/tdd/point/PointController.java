@@ -61,6 +61,11 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+
+        UserPoint userPoint = pointService.serchPoint(id);  //포인트 조회
+        UserPoint returnUser = pointService.subPoint(userPoint, amount);    //포인트사용
+        pointService.insertHistory(id, amount, TransactionType.CHARGE);     //사용 기록
+
+        return returnUser;
     }
 }
