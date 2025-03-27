@@ -12,6 +12,12 @@ public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
+    PointService pointService;
+
+    public PointController(PointService pointService) {
+        this.pointService = pointService;
+    }
+
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
      */
@@ -19,7 +25,7 @@ public class PointController {
     public UserPoint point(
             @PathVariable long id
     ) {
-        return new UserPoint(0, 0, 0);
+        return pointService.serchPoint(id);
     }
 
     /**
@@ -40,7 +46,11 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        UserPoint userPoint = pointService.serchPoint(id);  //포인트 조회
+        UserPoint returnUser = pointService.addPoint(userPoint, amount);    //포인트충전
+        pointService.insertHistory(id, amount, TransactionType.CHARGE);     //충전 기록
+
+        return returnUser;
     }
 
     /**

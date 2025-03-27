@@ -17,6 +17,14 @@ public class PointHistoryTable {
     private final List<PointHistory> table = new ArrayList<>();
     private long cursor = 1;
 
+    //Mockito 라이브러리 사용하지않기 위해 생성자 추가
+    public PointHistoryTable() {}
+
+    public PointHistoryTable(List<PointHistory> table, long cursor) {
+        this.table.addAll(table);
+        this.cursor = cursor;
+    }
+
     public PointHistory insert(long userId, long amount, TransactionType type, long updateMillis) {
         throttle(300L);
         PointHistory pointHistory = new PointHistory(cursor++, userId, amount, type, updateMillis);

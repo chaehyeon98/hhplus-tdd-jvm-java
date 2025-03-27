@@ -15,6 +15,13 @@ public class UserPointTable {
 
     private final Map<Long, UserPoint> table = new HashMap<>();
 
+    //Mockito 라이브러리 사용하지않기 위해 생성자 추가
+    public UserPointTable() {}
+
+    public UserPointTable(Map<Long, UserPoint> table) {
+        this.table.putAll(table);
+    }
+
     public UserPoint selectById(Long id) {
         throttle(200);
         return table.getOrDefault(id, UserPoint.empty(id));
