@@ -63,7 +63,7 @@ class PointControllerTest {
     @Test
     void point() {
 
-        //ginven
+        //given
         UserPoint mokUserPoint =  UserPoint.empty(1L);
 
         //when 동작 검증
