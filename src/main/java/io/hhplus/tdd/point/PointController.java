@@ -1,7 +1,5 @@
 package io.hhplus.tdd.point;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,8 +7,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/point")
 public class PointController {
-
-    private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
     PointService pointService;
 
@@ -35,7 +31,7 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
+        return pointService.getHistories(id);
     }
 
     /**

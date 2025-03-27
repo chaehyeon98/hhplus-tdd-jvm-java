@@ -188,4 +188,62 @@ class NotUseMockitoServiceImplTest {
         assert user.id() == 1L;
         assert user.point() == 0L;
     }
+
+    /*
+     * 포인트 내역 조회
+     * 포인트 내역이 없을때
+     * error 포인트 내역 없음
+     * */
+    @Test
+    void getHistories_empty() {
+
+        List<PointHistory> table = new ArrayList<>();
+        Map<Long, UserPoint> userPoints = new HashMap<>();
+
+        PointService pointService = new PointServiceImpl(new PointHistoryTable(table, 1), new UserPointTable(userPoints));
+
+        Exception e = null;
+
+        try{
+            pointService.getHistories(1L);
+        }catch (Exception exception) {
+            e= exception;
+        }
+
+        assert e!= null;
+        assert e.getMessage().equals("포인트 내역 없음");
+        assert e instanceof IllegalArgumentException;
+    }
+
+    /*
+     * 포인트 내역 조회
+     * id 1로 저장된 내역 조회되는지
+     * */
+    @Test
+    void getHistories() {
+        List<PointHistory> table = new ArrayList<>();
+        table.add(new PointHistory(1, 1,100,TransactionType.CHARGE, System.currentTimeMillis()));
+        table.add(new PointHistory(2, 1,100,TransactionType.USE, System.currentTimeMillis()));
+        table.add(new PointHistory(3, 2,100,TransactionType.CHARGE, System.currentTimeMillis()));
+
+        Map<Long, UserPoint> userPoints = new HashMap<>();
+        userPoints.put(1L, new UserPoint(1L, 0L, System.currentTimeMillis()));
+        userPoints.put(2L, new UserPoint(2L, 100L, System.currentTimeMillis()));
+
+        PointService pointService = new PointServiceImpl(new PointHistoryTable(table, 4), new UserPointTable(userPoints));
+
+        List<PointHistory> pointHistories = pointService.getHistories(1L);
+
+        assert pointHistories.size() == 2;
+
+        assert pointHistories.get(0).id() == 1L;
+        assert pointHistories.get(0).userId() == 1L;
+        assert pointHistories.get(0).amount() == 100L;
+        assert pointHistories.get(0).type() == TransactionType.CHARGE;
+
+        assert pointHistories.get(1).id() == 2L;
+        assert pointHistories.get(1).userId() == 1L;
+        assert pointHistories.get(1).amount() == 100L;
+        assert pointHistories.get(1).type() == TransactionType.USE;
+    }
 }

@@ -5,6 +5,8 @@ import io.hhplus.tdd.database.UserPointTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PointServiceImpl implements PointService {
 
@@ -20,13 +22,13 @@ public class PointServiceImpl implements PointService {
     }
 
     @Override
-    public UserPoint serchPoint(long id) throws IllegalArgumentException {
+    public UserPoint serchPoint(long userId) throws IllegalArgumentException {
 
-        if(id <= 0 || id > 100){
+        if(userId <= 0 || userId > 100){
             throw new IllegalArgumentException("생성불가");
         }
 
-        return userPointTable.selectById(id);
+        return userPointTable.selectById(userId);
     }
 
     @Override
@@ -62,5 +64,21 @@ public class PointServiceImpl implements PointService {
     @Override
     public void insertHistory(long userId, long amount, TransactionType type) throws IllegalArgumentException {
         pointHistoryTable.insert(userId, amount, type, System.currentTimeMillis());
+    }
+
+    @Override
+    public List<PointHistory> getHistories(long userId) throws IllegalArgumentException{
+
+        if(userId <= 0 || userId > 100){
+            throw new IllegalArgumentException("생성불가");
+        }
+
+        List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(userId);
+
+        if(pointHistories.isEmpty()){
+            throw new IllegalArgumentException("포인트 내역 없음");
+        }
+
+        return pointHistories;
     }
 }
